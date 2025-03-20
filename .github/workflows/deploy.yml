@@ -1,0 +1,35 @@
+name: Deploy Next.js on Push
+
+on:
+  push:
+    branches:
+      - main  # Workflow berjalan saat push ke branch main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout kode dari GitHub
+        uses: actions/checkout@v3
+
+      - name: Install Node.js dan Dependencies
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18  # Sesuaikan dengan versi Node.js kamu
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build Next.js
+        run: yarn build
+
+      - name: Upload hasil build ke FTP Server
+        uses: SamKirkland/FTP-Deploy-Action@4.3.0
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: "./out/"  # Sesuaikan dengan hasil build Next.js
+          server-dir: "/public_html/demo/nextjs-demo/"  # Sesuaikan dengan lokasi di server
+
